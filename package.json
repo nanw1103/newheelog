@@ -1,0 +1,24 @@
+{
+  "name": "newheelog",
+  "version": "0.0.1",
+  "description": "New-wheel-logger, a simple convention-over-configuration logger for NodeJs service.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nanw1103/newheelog.git"
+  },
+  "keywords": [
+    "log",
+    "logger",
+    "logging"
+  ],
+  "author": "nanw1103",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nanw1103/newheelog/issues"
+  },
+  "homepage": "https://github.com/nanw1103/newheelog#readme"
+}
