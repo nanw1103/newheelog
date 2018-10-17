@@ -12,7 +12,7 @@ nwlog.config({
 	//longLevelName: true				//Use long level name (e.g. "ERROR") instead of short level name (e.g. "E"). Default: true
 })
 
-const log = nwlog(__filename)
+const log = nwlog()
 
 console.log('console.log')
 console.debug('console.debug')

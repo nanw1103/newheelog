@@ -14,7 +14,7 @@ A previous version was based on winston and winston daily rotate file. There are
 ```javascript
 
 //easy api
-const log = require('@nanw/nwlog')(__filename)
+const log = require('newheelog')()
 
 log('log')
 
@@ -29,11 +29,8 @@ let d = {a: 1, b:'Transylvania'}
 log('Formatting: %d %s %j', 12345, 'welcome to', d)
 log('test error with stack:', new Error('demo'))
 
-const log2 = require('newheelog')('/anotherModule/index.js')
-log2('Message from another module')
-
 //alternatives
-const {info, warn, error} = require('@nanw/nwlog')(__filename)
+const {info, warn, error} = require('newheelog')()
 Promise.reject('Hello, mortal')
 	.then(info)
 	.catch(error)
@@ -43,7 +40,7 @@ Promise.reject('Hello, mortal')
 # Options
 
 ```javascript
-const nwlog = require('@nanw/nwlog')
+const nwlog = require('newheelog')
 
 nwlog.config({
 	//decorateConsole: true,		//whether decorate console.log/console.error. Default: true
@@ -57,7 +54,7 @@ nwlog.config({
 	//longLevelName: false			//Use long level name (e.g. "ERROR") instead of short level name (e.g. "E"). Default: false
 })
 
-const log = nwlog(__filename)
+const log = nwlog()
 log('log')
 ```
 

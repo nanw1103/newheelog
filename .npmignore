@@ -58,5 +58,5 @@ typings/
 .env
 
 t.js
-
+.eslintrc.js
 docs

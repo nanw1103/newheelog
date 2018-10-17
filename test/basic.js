@@ -1,4 +1,4 @@
-const log = require('../index.js')(__filename)
+const log = require('../index.js')()
 
 console.log('console.log')
 console.debug('console.debug')
