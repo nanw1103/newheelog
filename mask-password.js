@@ -1,33 +1,49 @@
 'use strict'
 
-function maskPassword(args) {
-
-	function maskObj(o) {
-		let changed
-		for (let k in o) {
-			if (k.toLowerCase().indexOf('password') >= 0) {
-				o[k] = '********'
-				changed = true
-				continue
-			}
-
-			let v = o[k]
-			if (typeof v === 'object')
-				changed |= maskObj(v)
+function maskPwd(o, k) {
+	const mask = '********'
+	if (typeof o[k] === 'string'){
+		o[k] = mask
+	} else if (typeof o[k] === 'object'){
+		if (o[k]['value']){
+			o[k]['value'] = mask
+		} else {
+			o[k] = mask
 		}
-		return changed
 	}
+}
 
-	function maskString(s) {
-		let PATTERN = /(["'][^"']*password[^"']*["']\s*:\s*["'])([^'"]*)(["'])/img
-		s = s.replace(PATTERN, '$1********$3')
+function maskObj(o) {
+	let changed
+	for (let k in o) {
+		let tmp = k.toLowerCase()
+		if (tmp.indexOf('password') >= 0 || tmp.indexOf('pwd') >= 0) {
+			maskPwd(o, k)
+			changed = true
+			continue
+		}
 
-		//"/passwordd:VMware123"
-		PATTERN = /(.* \/passwordd:)(.*)(\s*.*)/img
-		s = s.replace(PATTERN, '$1********$3')
-		return s
+		let v = o[k]
+		if (typeof v === 'object')
+			changed |= maskObj(v)
 	}
+	return changed
+}
 
+function maskString(s) {
+	let PATTERN = /(["'][^"']*password[^"']*["']\s*:\s*["'])([^'"]*)(["'])/img
+	s = s.replace(PATTERN, '$1********$3')
+
+	PATTERN = /(['][^']*pwd[^']*[']\s*:\s*['])([^']*)(['])/img
+	s = s.replace(PATTERN, '$1********$3')
+
+	//"/passwordd:VMware123"
+	PATTERN = /(.* \/passwordd:)(.*)(\s*.*)/img
+	s = s.replace(PATTERN, '$1********$3')
+	return s
+}
+
+function maskPassword(args) {
 	for (let k in args) {
 		let v = args[k]
 
