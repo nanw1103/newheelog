@@ -17,7 +17,7 @@ function findModuleName(fileName) {
 
 	if (!fileName)
 		fileName = identifyStackFiles()[2]
-	
+
 	let name = path.basename(fileName)
 	if (name.endsWith('.js'))
 		name = name.substr(0, name.length - 3)
@@ -28,7 +28,7 @@ function findModuleName(fileName) {
 		if (name === 'lib')
 			name = path.basename(path.dirname(dir))
 	}
-	return name	
+	return name
 }
 
 

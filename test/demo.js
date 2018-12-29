@@ -32,7 +32,7 @@ let obj = {
 	password1: 'You must not see me, too',
 	nested: {
 		password: 'I am a nested password'
-	}	
+	}
 }
 log('Demo mask password', obj)
 

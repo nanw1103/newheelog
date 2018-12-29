@@ -15,28 +15,22 @@ const defaultOptions = {
 	maskPassword: false,
 	moduleNamePadding: 0,
 	longLevelName: true,
-	colorizeConsole: true
+	colorizeConsole: true,
+	formatTime: null,	//(date) => "string"
 }
 
 const COLORS = {
-	verbose:	'\u001b[34m',
-	debug:		'\u001b[36m',
-	info:		'\u001b[32m',
-	warn:		'\u001b[33m',
-	error:		'\u001b[91m',
-	_closing:	'\u001b[39m'
-}
-
-function levelSymbol(level) {
-	let s = level.toUpperCase()
-	s = options.longLevelName ? s.substring(0, 5).padEnd(5) : s.substring(0, 1)
-	let consoleSymbol = options.colorizeConsole ? COLORS[level] + s + COLORS._closing : s
-	return [s, consoleSymbol]
+	verbose: '\u001b[34m',
+	debug: '\u001b[36m',
+	info: '\u001b[32m',
+	warn: '\u001b[33m',
+	error: '\u001b[91m',
+	_closing: '\u001b[39m'
 }
 
 let currentLogLength = 0
 
-let options = Object.assign({}, defaultOptions)
+let options = { ...defaultOptions }
 
 let fullPath
 let fdOut
@@ -49,14 +43,21 @@ let originalConsole = {
 	error: console.error,
 }
 
+function levelSymbol(level) {
+	let s = level.toUpperCase()
+	s = options.longLevelName ? s.substring(0, 5).padEnd(5) : s.substring(0, 1)
+	let consoleSymbol = options.colorizeConsole ? COLORS[level] + s + COLORS._closing : s
+	return [s, consoleSymbol]
+}
+
 function config(overrides) {
-	
+
 	options = Object.assign(options, overrides)
-	
+
 	let refreshFiles = !fdOut && options.fileName
 	if (refreshFiles) {
 		let newPath = path.resolve(options.fileName)
-		
+
 		if (fullPath !== newPath) {
 			fullPath = newPath
 			try {
@@ -64,13 +65,13 @@ function config(overrides) {
 			} catch (e) {
 				//omit
 			}
-			
+
 			rollLogs()
 		}
 	}
-	
+
 	decorateConsole(options.decorateConsole)
-	
+
 	return options
 }
 
@@ -83,26 +84,24 @@ function decorateConsole(flag) {
 			console.warn = originalConsole.warn
 			console.error = originalConsole.error
 		}
-	} else {
-		if (console.log === originalConsole.log) {
-			console.log = (...args) => _log('info', args)
-			console.debug = (...args) => _log('debug', args)
-			console.info = (...args) => _log('info', args)
-			console.warn = (...args) => _log('warn', args)
-			console.error = (...args) => _log('error', args)
-		}
+	} else if (console.log === originalConsole.log) {
+		console.log = (...args) => _log('info', args)
+		console.debug = (...args) => _log('debug', args)
+		console.info = (...args) => _log('info', args)
+		console.warn = (...args) => _log('warn', args)
+		console.error = (...args) => _log('error', args)
 	}
 }
 
 function rollLogs() {
-	
+
 	if (fdOut)
 		fs.closeSync(fdOut)
-	
+
 	currentLogLength = 0
-	
+
 	function rollOut(i) {
-		let name = i === 0 ? fullPath : (fullPath + '.' + i)
+		let name = i === 0 ? fullPath : fullPath + '.' + i
 		try {
 			if (!fs.existsSync(name))
 				return
@@ -125,20 +124,20 @@ function write(text) {
 		fs.writeSync(fdOut, text)
 	} catch (e) {
 		process.stderr.write(e.toString())
-		
+
 		try {
 			fs.closeSync(fdOut)
-		} catch (e) {
-			process.stderr.write('NWLOG: closing fd failed: ' + e.toString())
+		} catch (ex) {
+			process.stderr.write('NWLOG: closing fd failed: ' + ex.toString())
 		}
-		
+
 		try {
 			fdOut = fs.openSync(fullPath, 'a')
-		} catch (e) {
-			process.stderr.write('NWLOG: reopen fd failed: path=' + fullPath + ', error=' + e.toString())
+		} catch (ex) {
+			process.stderr.write('NWLOG: reopen fd failed: path=' + fullPath + ', error=' + ex.toString())
 		}
 	}
-	
+
 	if (options.maxLength > 0) {
 		currentLogLength += Buffer.byteLength(text)
 		if (currentLogLength >= options.maxLength)
@@ -146,10 +145,14 @@ function write(text) {
 	}
 }
 
+function num2d(n){
+    return n > 9 ? n: '0' + n
+}
+
 function _log(level, args, moduleName) {
 	options.maskPassword && maskPassword(args)
 	let content = util.format.apply(null, args)
-	
+
 	let modulePart
 	if (moduleName) {
 		if (options.moduleNamePadding)
@@ -158,7 +161,7 @@ function _log(level, args, moduleName) {
 	} else {
 		modulePart = ''
 	}
-	
+
 	let customPart
 	if (options.custom) {
 		if (typeof options.custom === 'function')
@@ -169,9 +172,14 @@ function _log(level, args, moduleName) {
 	} else {
 		customPart = ''
 	}
-	
+
 	let contentPart = `${customPart}${modulePart}${content}${EOL}`
-	let timePart = new Date().toISOString()
+	let now = new Date()
+	let timePart
+	if (options.formatTime)
+		timePart = options.formatTime(now)
+	else
+		timePart = `${num2d(now.getMonth() + 1)}-${num2d(now.getDate())} ${num2d(now.getHours())}:${num2d(now.getMinutes())}:${num2d(now.getSeconds())}`
 	
 	const [plainSymbol, consoleSymbol] = levelSymbol(level)
 	if (options.writeToConsole) {
@@ -181,14 +189,14 @@ function _log(level, args, moduleName) {
 		else
 			process.stdout.write(text)
 		//FIXME
-		//Do not use console log/error here. It has trouble when using cluster/worker. 
+		//Do not use console log/error here. It has trouble when using cluster/worker.
 		//The output are overlapped.
 		//originalConsole[level](text)
 	}
-		
-	
+
+
 	if (options.fileName)
-		write(`${timePart} ${plainSymbol} ${contentPart}`)		
+		write(`${timePart} ${plainSymbol} ${contentPart}`)
 }
 
 //----------------------------------------------------------------------
@@ -197,14 +205,14 @@ function _log(level, args, moduleName) {
 function loggerFunc(moduleName) {
 
 	moduleName = findModuleName(moduleName)
-	
+
 	function logF(...args) {
 		_log('info', args, moduleName)
 	}
-	
-	logF.log = logF	
+
+	logF.log = logF
 	logF.info = logF
-	logF.debug = (...args) => _log('debug', args, moduleName)	
+	logF.debug = (...args) => _log('debug', args, moduleName)
 	logF.warn = (...args) => _log('warn', args, moduleName)
 	logF.error = (...args) => _log('error', args, moduleName)
 	logF.verbose = (...args) => _log('verbose', args, moduleName)
