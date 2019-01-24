@@ -167,7 +167,7 @@ function _log(level, args, moduleName) {
 		if (typeof options.custom === 'function')
 			customPart = options.custom()
 		else
-			customPart += options.custom
+			customPart = options.custom
 		customPart += ' '
 	} else {
 		customPart = ''
