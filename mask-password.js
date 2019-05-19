@@ -5,8 +5,8 @@ function maskPwd(o, k) {
 	if (typeof o[k] === 'string'){
 		o[k] = mask
 	} else if (typeof o[k] === 'object'){
-		if (o[k]['value']){
-			o[k]['value'] = mask
+		if (o[k].value){
+			o[k].value = mask
 		} else {
 			o[k] = mask
 		}

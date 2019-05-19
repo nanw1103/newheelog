@@ -53,6 +53,8 @@ function levelSymbol(level) {
 function config(overrides) {
 
 	options = Object.assign(options, overrides)
+	if (!process.stdout.isTTY)
+		options.colorizeConsole = false
 
 	let refreshFiles = !fdOut && options.fileName
 	if (refreshFiles) {
@@ -146,7 +148,7 @@ function write(text) {
 }
 
 function num2d(n){
-    return n > 9 ? n: '0' + n
+	return n > 9 ? n: '0' + n
 }
 
 function _log(level, args, moduleName) {
@@ -180,7 +182,7 @@ function _log(level, args, moduleName) {
 		timePart = options.formatTime(now)
 	else
 		timePart = `${num2d(now.getMonth() + 1)}-${num2d(now.getDate())} ${num2d(now.getHours())}:${num2d(now.getMinutes())}:${num2d(now.getSeconds())}`
-	
+
 	const [plainSymbol, consoleSymbol] = levelSymbol(level)
 	if (options.writeToConsole) {
 		let text = `${timePart} ${consoleSymbol} ${contentPart}`
