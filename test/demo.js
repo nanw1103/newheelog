@@ -47,9 +47,3 @@ log('test error with stack:', new Error('demo'))
 
 const log2 = nwlog('another module')
 log2('Hello from another module')
-/*
-const deleteOldFiles = require('./nwlog/delete-old-files.js')
-let pattern = /^task-\d+\.log$/
-let nameFilter = name => pattern.test(name)
-deleteOldFiles('./log', nameFilter, 2).catch(console.error)
-*/
