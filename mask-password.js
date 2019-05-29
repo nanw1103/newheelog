@@ -1,23 +1,18 @@
-'use strict'
-
 function maskPwd(o, k) {
-	const mask = '********'
-	if (typeof o[k] === 'string'){
+	const mask = '*****'
+	if (o[k].value)
+		o[k].value = mask
+	else
 		o[k] = mask
-	} else if (typeof o[k] === 'object'){
-		if (o[k].value){
-			o[k].value = mask
-		} else {
-			o[k] = mask
-		}
-	}
 }
 
 function maskObj(o) {
 	let changed
 	for (let k in o) {
 		let tmp = k.toLowerCase()
-		if (tmp.indexOf('password') >= 0 || tmp.indexOf('pwd') >= 0) {
+		if (tmp.indexOf('password') >= 0
+				|| tmp.indexOf('pwd') >= 0
+				|| (tmp.indexOf('secret') >= 0 && tmp.indexOf('key') >= 0)) {
 			maskPwd(o, k)
 			changed = true
 			continue
@@ -30,33 +25,36 @@ function maskObj(o) {
 	return changed
 }
 
-function maskString(s) {
-	let PATTERN = /(["'][^"']*password[^"']*["']\s*:\s*["'])([^'"]*)(["'])/img
-	s = s.replace(PATTERN, '$1********$3')
+const patterns = [
+	/(["'][^"']*password[^"']*["']\s*:\s*["'])([^"']*)(["'])/img,
+	/(["'][^"']*pwd[^"']*["']\s*:\s*["'])([^"']*)(["'])/img,
+	/(["'][^"']*secret[^"']*key[^"']*["']\s*:\s*["'])([^"']*)(["'])/img
+]
 
-	PATTERN = /(['][^']*pwd[^']*[']\s*:\s*['])([^']*)(['])/img
-	s = s.replace(PATTERN, '$1********$3')
-
-	//"/passwordd:VMware123"
-	PATTERN = /(.* \/passwordd:)(.*)(\s*.*)/img
-	s = s.replace(PATTERN, '$1********$3')
+function maskString(s, additionalPatterns) {
+	for (let p of patterns)
+		s = s.replace(p, '$1********$3')
+	if (Array.isArray(additionalPatterns) && additionalPatterns[0] instanceof RegExp) {
+		for (let p of additionalPatterns)
+			s = s.replace(p, '$1********$3')
+	}
 	return s
 }
 
-function maskPassword(args) {
+function maskPassword(args, patterns) {
 	for (let k in args) {
 		let v = args[k]
 
 		try {
 			if (typeof v === 'string') {
-				args[k] = maskString(v)
+				args[k] = maskString(v, patterns)
 				continue
 			}
 
 			if (typeof v !== 'object')
 				continue
 
-			let tmp = JSON.parse(JSON.stringify(v))	//make a copy to avoid changing passed-in object
+			let tmp = JSON.parse(JSON.stringify(v))	//make a copy to avoid changing the passed-in object
 			if (maskObj(tmp))
 				args[k] = tmp
 		} catch (e) { }

@@ -152,7 +152,7 @@ function num2d(n){
 }
 
 function _log(level, args, moduleName) {
-	options.maskPassword && maskPassword(args)
+	options.maskPassword && maskPassword(args, options.maskPassword)
 	let content = util.format.apply(null, args)
 
 	let modulePart

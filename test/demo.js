@@ -7,7 +7,8 @@ nwlog.config({
 	//maxLength: 4 * 1024 * 1024,		//max file length
 	//maxFiles: 3,						//max log files to keep
 	custom: () => 'P' + process.pid,	//A function to append custom label. E.g. add pid
-	maskPassword: true					//If enabled, tries to identify password string fields in log objects and mask them. Default: false
+	maskPassword: true					//If enabled, tries to identify password string fields in log objects and mask them. Default: false.
+										//An array of custom patterns can also be specified for the replacement.
 	//moduleNamePadding: 0,				//Padding for module name. 0 for no padding. Default: 0
 	//longLevelName: true				//Use long level name (e.g. "ERROR") instead of short level name (e.g. "E"). Default: true
 })
@@ -30,11 +31,15 @@ let obj = {
 	a: 1,
 	password: 'You must not see me',
 	password1: 'You must not see me, too',
+	adminPassword: 'You must not see me',
+	secretAccessKey: 'You must not see me',
+	awsSecretKey: 'You must not see me',
 	nested: {
 		password: 'I am a nested password'
 	}
 }
-log('Demo mask password', obj)
+log('Demo mask password in obj', obj)
+log('Demo mask password in string', JSON.stringify(obj))
 
 //formatting
 log('Formatting: %d %s %j', 12345, 'welcome to', {location:'Transylvania'})
