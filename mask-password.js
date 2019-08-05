@@ -25,14 +25,14 @@ function maskObj(o) {
 	return changed
 }
 
-const patterns = [
+const PATTERNS = [
 	/(["'][^"']*password[^"']*["']\s*:\s*["'])([^"']*)(["'])/img,
 	/(["'][^"']*pwd[^"']*["']\s*:\s*["'])([^"']*)(["'])/img,
 	/(["'][^"']*secret[^"']*key[^"']*["']\s*:\s*["'])([^"']*)(["'])/img
 ]
 
 function maskString(s, additionalPatterns) {
-	for (let p of patterns)
+	for (let p of PATTERNS)
 		s = s.replace(p, '$1********$3')
 	if (Array.isArray(additionalPatterns) && additionalPatterns[0] instanceof RegExp) {
 		for (let p of additionalPatterns)

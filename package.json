@@ -1,6 +1,6 @@
 {
   "name": "newheelog",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "New-wheel-logger, a simple convention-over-configuration logger for NodeJs service.",
   "main": "index.js",
   "scripts": {
