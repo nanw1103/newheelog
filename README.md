@@ -1,6 +1,8 @@
 # newheelog
 A new-wheel-logger for NodeJs. Simple do its task.
 
+[![npm version](http://img.shields.io/npm/v/newheelog.svg?style=flat)](https://npmjs.org/package/newheelog "View this project on npm")
+
 A previous version was based on winston and winston daily rotate file. There are some traps when used with cluster based workers. So New-wheel Logger is created.
 
 * Short logging api: as it should be
